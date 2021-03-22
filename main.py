@@ -1,58 +1,31 @@
 import pandas as pd
+import datetime as dt
 
 from typing import List
 from currency_converter import CurrencyConverter
 from sortedcontainers import SortedList
 
 from Object.Statement import Statement
+from Object.Position import Position
+from Object.Transaction import Transaction, Transaction_Type
 
 FILE = 'eToroAccountStatement2020.xlsx'
 
 def main():
     statement = Statement(FILE)
-    statement.convert_to_Currency('EUR')
-    print(sum_profit(positions))
-    print(sum_rollover_fee(positions, transactions))
+    currency = 'EUR'
+    statement.convert_to_Currency(currency)
 
+    date_time_str = '2020-01-01 00:00:00'
+    start = dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
 
-def sum_profit(positions:List[Position]) -> float:
-    profit_sum = 0
-    for position in positions:
-        profit_sum += position.profit
-    return profit_sum
+    date_time_str = '2020-06-30 23:59:59'
+    stop = dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
 
-def sum_rollover_fee(positions:List[Position], transactions:List[Transaction]) -> float:
-    rolloverFee_sum = 0
-    for position in positions:
-        rolloverFee_sum += position.get_Rollover_fee()
-
-    for transaction in transactions:
-        if transaction.type == Transaction_Type.Rollover_fee:
-            rolloverFee_sum += transaction.amount_USD
-    return rolloverFee_sum
-
-def load_xlsx(path:str) -> List[Position]:
-    positions:List[Position] = SortedList(key=lambda x: x.ID)
-
-    dataframe:pd.DataFrame = pd.read_excel(path, sheet_name='Closed Positions')
-    values = dataframe.values
-
-    for row in values:
-        positions.add(Position(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13],row[14],row[15],row[16]))
-
-    dataframe:pd.DataFrame = pd.read_excel(path, sheet_name='Transactions Report')
-    values = dataframe.values
-
-    transactions:List[Transaction] = []
-    for row in values:
-        tmp = Transaction(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8])
-        try:
-            position_index = positions.index(tmp)
-            positions[position_index].transactions.append(tmp)
-        except:
-            transactions.append(tmp)
-
-    return positions, transactions
+    profit = round(statement.sum_profit(start, stop),2)
+    rollover = round(statement.sum_rollover(start, stop),2)
+    print(f'Profit {profit} {currency}')
+    print(f'Rollover {rollover} {currency}')
 
 if __name__ == "__main__":
     # execute only if run as a script

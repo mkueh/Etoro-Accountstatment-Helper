@@ -6,39 +6,40 @@ from typing import List
 
 
 class Transaction_Type(Enum):
-    Account_balance_to_mirror = 1
-    Adjustment = 2
-    Deposit = 3
-    Open_Position = 4
-    Profit_Loss_of_Trade = 5
-    Rollover_fee = 6
-    Start_Copy = 7
-    Stop_Copy = 8
+    Account_balance_to_mirror = 10
+    Adjustment = 20
+    Deposit = 30
+    Open_Position = 40
+    Profit_Loss_of_Trade = 50
+    Rollover_fee = 60
+    Dividende = 61
+    Start_Copy = 70
+    Stop_Copy = 80
     NOT_DEFINE = -1
 
 class Transaction():
     date:datetime
     account_Balance: float
-    type:str
+    type:Transaction_Type
     details:str
     ID: int
-    amount_USD:float
-    realized_Equity_Change_USD: float
-    realized_Equity_USD: float
+    amount:float
+    realized_Equity_Change: float
+    realized_Equity: float
     NWA: str
 
     def __init__(self, date:str, account_Balance:float, type:str, details:str, ID:int, amount:float, realized_Equity_Change:float, realized_Equity:float, NWA:str):
         self.date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         self.account_Balance = float(account_Balance)
-        self.type = self._convert_type(type)
+        self.type = self._convert_type(type, details)
         self.details = details
         self.ID = ID
-        self.amount_USD = amount
-        self.realized_Equity_USD = float(realized_Equity)
-        self.realized_Equity_Change_USD = float(realized_Equity_Change)
+        self.amount = amount
+        self.realized_Equity = float(realized_Equity)
+        self.realized_Equity_Change = float(realized_Equity_Change)
         self.NWA = NWA
 
-    def _convert_type(self, type:str):
+    def _convert_type(self, type:str, details:str):
         if 'Profit/Loss of Trade' in type:
             return Transaction_Type.Profit_Loss_of_Trade
         elif 'Adjustment' in type:
@@ -50,7 +51,10 @@ class Transaction():
         elif 'Open Position' in type:
             return Transaction_Type.Open_Position
         elif 'Rollover Fee' in type:
-            return Transaction_Type.Rollover_fee
+            if 'dividend' in details:
+                return Transaction_Type.Dividende
+            else:
+                return Transaction_Type.Rollover_fee
         elif 'Start Copy' in type:
             return Transaction_Type.Start_Copy
         elif 'Stop Copy' in type:
@@ -59,7 +63,11 @@ class Transaction():
             print(f'found a transaction tpye that is not define ({type})')
 
     def convert_toCurrency(self, toCurrency:str, cc:CurrencyConverter, default_currency:str='USD'):
-        self.account_Balance = cc.convert(self.account_Balance, default_currency, toCurrency, date=self.date)
-        self.amount_USD = cc.convert(self.amount_USD, default_currency, toCurrency, date=self.date)
-        self.realized_Equity_USD = cc.convert(self.realized_Equity_USD, default_currency, toCurrency, date=self.date)
-        self.realized_Equity_Change_USD = cc.convert(self.realized_Equity_Change_USD, default_currency, toCurrency, date=self.date)
+        self.account_Balance = self._round(self.account_Balance, toCurrency, cc, default_currency)
+        self.amount = self._round(self.amount, toCurrency, cc, default_currency, True)
+        self.realized_Equity = self._round(self.realized_Equity, toCurrency, cc, default_currency)
+        self.realized_Equity_Change = self._round(self.realized_Equity_Change, toCurrency, cc, default_currency)
+
+    def _round(self, value:float, toCurrency:str, cc:CurrencyConverter, default_currency:str='USD', not_null=False):
+        converted_value = cc.convert(value, default_currency, toCurrency, date=self.date)
+        return converted_value
