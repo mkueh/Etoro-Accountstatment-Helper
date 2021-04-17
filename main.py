@@ -24,8 +24,19 @@ def main():
 
     profit = round(statement.sum_profit(start, stop),2)
     rollover = round(statement.sum_rollover(start, stop),2)
+    devidende = round(statement.sum_devidende(start, stop),2)
+    total_lost = round(statement.sum_total_lost(start,stop), 2)
+    total_win = round(statement.sum_total_win(start,stop), 2)
+
+
     print(f'Profit {profit} {currency}')
+    print(f'Total lost {total_lost} {currency}')
+    print(f'Total win {total_win} {currency}')
+
     print(f'Rollover {rollover} {currency}')
+    print(f'Devidende {devidende} {currency}')
+
+
 
 if __name__ == "__main__":
     # execute only if run as a script

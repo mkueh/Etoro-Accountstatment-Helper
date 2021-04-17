@@ -1,18 +1,27 @@
 from enum import Enum
 import investpy
 
-class PairTypeCache():
+from typing import Dict, List
 
-    class Pair_Type(Enum):
-        STOCK = 1
-        CURRENCY = 2
-        CRYPTO = 3
-        ETF = 4
-        INDICIES = 5
-        NOT_DEFINE = -1
+class InvestPyCache():
+
+    _cache:Dict
 
     def __init__(self):
-        pass
+        self._cache = {}
 
-    def get_pairType(self):
-        return
+    def get_pairType(self, action:str) -> List[investpy.search.SearchObj]:
+        if action in self._cache:
+            return self._cache[action]
+        else:
+            try:
+                response = investpy.search_quotes(action)
+
+                if isinstance(response, list):
+                    self._cache[action] = response
+                    return response
+                else:
+                    self._cache[action] = [response]
+                    return [response]
+            except:
+                return [None]
