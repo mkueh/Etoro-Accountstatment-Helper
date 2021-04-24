@@ -15,6 +15,10 @@ class Transaction_Type(Enum):
     Dividende = 61
     Start_Copy = 70
     Stop_Copy = 80
+    Mirror_balance_to_account = 90
+    Edit_Stop_Loss = 91
+    Pause_Copy = 92
+    Resume_Copy = 93
     NOT_DEFINE = -1
 
 class Transaction():
@@ -59,6 +63,14 @@ class Transaction():
             return Transaction_Type.Start_Copy
         elif 'Stop Copy' in type:
             return Transaction_Type.Stop_Copy
+        elif 'Mirror balance to account' in type:
+            return Transaction_Type.Mirror_balance_to_account
+        elif 'Edit Stop Loss' in type:
+            return Transaction_Type.Edit_Stop_Loss
+        elif 'Pause Copy' in type:
+            return Transaction_Type.Pause_Copy
+        elif 'Resume Copy' in type:
+            return Transaction_Type.Resume_Copy
         else:
             print(f'found a transaction tpye that is not define ({type})')
 

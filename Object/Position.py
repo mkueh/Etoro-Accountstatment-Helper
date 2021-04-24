@@ -2,7 +2,7 @@ import datetime, investpy
 from enum import Enum
 from currency_converter import CurrencyConverter
 from .Transaction import Transaction, Transaction_Type
-from .InvestPyCache import InvestPyCache
+from .EtoroAssetHelperPyCache import EtoroAssetHelperPyCache
 
 from typing import List
 
@@ -12,6 +12,8 @@ class Pair_Type(Enum):
     CRYPTO = 3
     ETF = 4
     INDICIES = 5
+    CERTIFICATES = 6
+    COMMODITIES = 7
     NOT_DEFINE = -1
 
 
@@ -134,7 +136,7 @@ class Position():
                 out.append(t)
         return out
 
-    def fill_infos_with_Transaction(self, investPyCache:InvestPyCache):
+    def fill_infos_with_Transaction(self, investPyCache:EtoroAssetHelperPyCache):
         base_transition = None
 
         #try with openP
@@ -152,25 +154,35 @@ class Position():
             self.pair_info = None
             return
 
-        type, info = self._get_pair_infos_by_transaction(base_transition_details, investPyCache)
+        type, info = self._get_pair_infos_by_transaction(base_transition_details, self.item_name, investPyCache)
         self.pair_type = type
         self.pair_info = info
 
-
-    def _get_pair_infos_by_transaction(self, transaction: Transaction, investPyCache:InvestPyCache):
+    def _get_pair_infos_by_transaction(self, transaction: Transaction, item_name:str, investPyCache:EtoroAssetHelperPyCache):
         default_details = transaction.details
-        respone = investPyCache.get_pairType(default_details)
+        etoro_assets_info = investPyCache.get_pairType(default_details, item_name)
 
-        if not respone[0] is None:
-            type = self._match_pairType(respone[0].pair_type)
-
+        if not etoro_assets_info is None:
+            type = self._match_pairType(etoro_assets_info['instrument type'])
+            return type, etoro_assets_info
+        else:
+            return None, None
 
     def _match_pairType(self, str_pairType:str) -> Pair_Type:
-        if str_pairType == 'stocks':
+        if str_pairType == 'Stocks':
             return Pair_Type.STOCK
+        elif str_pairType == 'ETF':
+            return Pair_Type.ETF
+        elif str_pairType == 'Currencies':
+            return Pair_Type.CURRENCY
+        elif str_pairType == 'Indices':
+            return Pair_Type.INDICIES
+        elif str_pairType == 'Cryptocurrencies':
+            return Pair_Type.CRYPTO
+        elif str_pairType == 'Commodities':
+            return Pair_Type.COMMODITIES
         else:
             return Pair_Type.NOT_DEFINE
-
 
     def get_Rollover_fee(self):
         return self.rollover_fee
