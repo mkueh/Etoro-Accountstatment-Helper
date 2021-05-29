@@ -29,9 +29,9 @@ def main():
     total_lost = round(statement.sum_total_lost(start,stop), 2)
     total_win = round(statement.sum_total_win(start,stop), 2)
 
-    cft_statistics = statement.get_CFT_statistic(start, stop)
-    etf_statistics = statement.get_ETF_statistic(start, stop)
-    shares_statistics = statement.get_shares_statistic(start, stop)
+    cft_statistics = statement.get_CFT_statistic_closed(start, stop)
+    etf_statistics = statement.get_ETF_statistic_closed(start, stop)
+    shares_statistics = statement.get_shares_statistic_closed(start, stop)
 
 
     print(f'Profit {profit} {currency}')
@@ -73,7 +73,9 @@ def main():
     print(f'Total shares profit {sum_shares_profit} {currency}')
     print(f'Total shares rollover {sum_shares_rollover} {currency}')
     print(f'Total shares dividend {sum_shares_dividend} {currency}')
-
+    print('-------------------------------------------------')
+    sum_devidend = round(statement.get_total_dividend(start, stop), 2)
+    print(f'Total devidend this time {sum_devidend} {currency}')
 
 if __name__ == "__main__":
     # execute only if run as a script

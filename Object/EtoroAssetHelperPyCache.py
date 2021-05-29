@@ -29,19 +29,19 @@ class EtoroAssetHelperPyCache():
         crypto = parsed_types['CryptoCategories']
 
         response = requests.get(self.data_link)
-        data = json.loads(response.text)['InstrumentDisplayDatas']
+        response_json = json.loads(response.text)['InstrumentDisplayDatas']
 
         # We collect the instruments with their attributes here
         inst = []
 
         # Loop through all the instruments
-        for d in data:
+        for entry in response_json:
 
             # Gather the necessary data about the instrument
-            instrument_typeID = d['InstrumentTypeID']
-            name = d['InstrumentDisplayName']
-            exchangeID = d['ExchangeID']
-            symbol = d['SymbolFull']
+            instrument_typeID = entry['InstrumentTypeID']
+            name = entry['InstrumentDisplayName']
+            exchangeID = entry['ExchangeID']
+            symbol = entry['SymbolFull']
 
 
             for item in instruments:
@@ -49,15 +49,15 @@ class EtoroAssetHelperPyCache():
                     instrument_type = item['InstrumentTypeDescription']
 
             industry = '-'
-            if 'StocksIndustryID' in d:
-                industryID = d['StocksIndustryID']
+            if 'StocksIndustryID' in entry:
+                industryID = entry['StocksIndustryID']
                 for item in stocks:
                     if item['IndustryID'] == industryID:
                         industry = item['IndustryName']
 
             exchange = '-'
-            if 'ExchangeID' in d:
-                industryID = d['ExchangeID']
+            if 'ExchangeID' in entry:
+                industryID = entry['ExchangeID']
                 for item in exchanges:
                     if item['ExchangeID'] == industryID:
                         exchange = item['ExchangeDescription']
@@ -86,12 +86,14 @@ class EtoroAssetHelperPyCache():
         elif action in self._item_dict_asName:
             return self._item_dict_asName[action]
 
+        """
         # remove currency at the end
         tmp_action = action[:len(action) - 4].strip()
         if tmp_action in self._item_dict_asSymbol:
             return self._item_dict_asSymbol[tmp_action]
         elif tmp_action in self._item_dict_asName:
             return self._item_dict_asName[tmp_action]
+        """
 
         if item_name in self._item_dict_asSymbol:
             return self._item_dict_asSymbol[item_name]
