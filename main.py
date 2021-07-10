@@ -10,17 +10,17 @@ from Object.Statement import Statement
 from Object.Position import Position
 from Object.Transaction import Transaction, Transaction_Type
 
-FILE = 'eToroAccountStatementALL.xlsx'
+FILE = 'eToroAccountStatement2020.xlsx'
 
 def main():
     statement = Statement(FILE)
-    currency = 'USD'
+    currency = 'EUR'
     statement.convert_to_Currency(currency)
 
     date_time_str = '2020-01-01 00:00:00'
     start = dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
 
-    date_time_str = '2020-06-30 23:59:59'
+    date_time_str = '2020-12-31 23:59:59'
     stop = dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
 
     profit = round(statement.sum_profit(start, stop),2)

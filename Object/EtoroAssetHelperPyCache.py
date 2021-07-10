@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Dict, List
 import json
-from fuzzywuzzy import fuzz
 import requests
 
 
